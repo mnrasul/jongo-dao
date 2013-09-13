@@ -10,10 +10,14 @@ boring code again and again.
 
 Author
 ======
-Mohammad Nasir Rausl <nasir [at] rasul [dot] ca>
+Mohammad Nasir Rasul < nasir [at] rasul [dot] ca>
+
 Website: http://mnrasul.github.io/jongo-dao/
+
 Issue Tracker: On Github - https://github.com/mnrasul/jongo-dao/issues
+
 Code: https://github.com/mnrasul/jongo-dao
+
 Mailing List: None exists yet. You can email me. If there is sufficient traction, I'll set one up.
 
 
