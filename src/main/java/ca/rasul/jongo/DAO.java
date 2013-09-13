@@ -54,6 +54,7 @@ public abstract class DAO<T extends Model> {
         this.type = type;
     }
 
+    
     /**
      * Specifies what is the default limit
      *
@@ -79,10 +80,39 @@ public abstract class DAO<T extends Model> {
     }
 
     /**
+     * Convenience method which returns a count of all documents in collection
+     * @return 
+     */
+    public long count(){
+        return collection.count();
+    }
+    
+    /**
+     * Returns the count of documents matching the qurey
+     * @param query
+     * @param parameters
+     * @return 
+     */
+    public long count(String query, Object ... parameters){
+        return collection.count(query, parameters);
+    }
+
+    
+    /**
      * Returns a list, specifying no query parameters, applying provided limit
      * and skip. Convenience method
-     *
+     * same as calling list(0,0)
      * @return
+     */
+    public List<T> list() {
+        return list(0,0);
+    }
+    /**
+     * Returns list of documents.
+     * 
+     * @param limit If 0 is passed, there is no upper limit
+     * @param skip if 0 is passed records from first and onwards are included
+     * @return 
      */
     public List<T> list(int limit, int skip) {
         return copyIterator(collection.find().limit(limit).skip(skip).as(type).iterator());
