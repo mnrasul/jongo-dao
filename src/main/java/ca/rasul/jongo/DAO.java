@@ -1,0 +1,168 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ca.rasul.jongo;
+
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteConcern;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.bson.types.ObjectId;
+import org.jongo.Jongo;
+import org.jongo.MongoCollection;
+
+/**
+ * Defines a generic Data Access Object (DAO). It provides frequently used
+ * methods such as list, find, delete, update, save.
+ *
+ * It saves boiler plate.
+ *
+ * @author nasir
+ */
+public abstract class DAO<T extends Model> {
+
+    protected MongoClient client = null;
+    protected DB db = null;
+    protected Jongo jongo = null;
+    protected MongoCollection collection = null;
+    private Class<T> type;
+    private final String collectionName;
+
+    /**
+     * Create a DAO for given collection, using the URL and DB
+     *
+     * @param connectionURL
+     * @param dbname
+     * @param collectionName
+     * @param type Type needs to be provided
+     * @throws UnknownHostException Usually thrown when invalid connection URL
+     * is provided, or database is not running
+     */
+    public DAO(String connectionURL, String dbname, String collectionName, Class<T> type) throws UnknownHostException {
+        client = new MongoClient(connectionURL);
+        db = client.getDB(dbname);
+        jongo = new Jongo(db);
+        this.collectionName = collectionName;
+        this.collection = jongo.getCollection(this.collectionName);
+        this.collection.withWriteConcern(WriteConcern.JOURNALED);
+        this.type = type;
+    }
+
+    /**
+     * Specifies what is the default limit
+     *
+     * @return
+     */
+    public int getLimit() {
+        return 10;
+    }
+
+    /**
+     * Converts an iterator to a List
+     *
+     * @param <T>
+     * @param iter
+     * @return
+     */
+    public static <T> List<T> copyIterator(Iterator<T> iter) {
+        List<T> copy = new ArrayList<T>();
+        while (iter.hasNext()) {
+            copy.add(iter.next());
+        }
+        return copy;
+    }
+
+    /**
+     * Returns a list, specifying no query parameters, applying provided limit
+     * and skip. Convenience method
+     *
+     * @return
+     */
+    public List<T> list(int limit, int skip) {
+        return copyIterator(collection.find().limit(limit).skip(skip).as(type).iterator());
+    }
+
+    /**
+     * Experimental : Returns JSON Array
+     *
+     * @param limit
+     * @param skip
+     * @param query
+     * @param fields
+     * @return json contains list
+     */
+    public String listJSON(int limit, int skip, DBObject query, DBObject fields) {
+        DBCollection col = db.getCollection(this.collectionName);
+        return col.find(query, fields).limit(limit).skip(skip).toArray().toString();
+    }
+
+//    public List<T> list(){
+//        return copyIterator(collection.find().as(type).iterator());
+//    }    
+    /**
+     * Returns an object if one exists matching the provided ObjectId
+     *
+     * @param id
+     * @return
+     */
+    public T find(ObjectId id) {
+        return collection.findOne(id).as(type);
+    }
+
+    /**
+     * Returns an object if one exists matching the provided ObjectId in String
+     * form. Before making the database call, it is converted into ObjectId
+     *
+     * @param id
+     * @return
+     */
+    public T find(String id) {
+        return collection.findOne(new ObjectId(id)).as(type);
+    }
+
+    /**
+     * Saves the entity
+     *
+     * @param entity
+     */
+    public void save(T entity) {
+        collection.save(entity);
+    }
+
+    /**
+     * @param entity
+     * @return
+     */
+    public Object update(T entity) {
+        if (entity.getId() == null) {
+            throw new IllegalArgumentException("ID is empty. Cannot update. Call save instead to create a new instance!");
+        }
+        save(entity);
+        return entity.getId();
+    }
+
+    /**
+     * Deletes a document based on ID. ID is converted into ObjectId.
+     * Convenience method
+     *
+     * @param id
+     */
+    public void delete(String id) {
+        collection.remove(new ObjectId(id));
+    }
+
+    /**
+     * Deletes given document
+     *
+     * @param id
+     */
+    public void delete(ObjectId id) {
+        collection.remove(id);
+    }
+}

@@ -1,0 +1,4 @@
+Jongo-dao
+This library is developed out of a personal need. I hope you will find it useful. 
+
+Libraries used come with their own licenses whose permission you need to follow.
