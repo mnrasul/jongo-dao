@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Jongo-dao : A generic data access library for jongo" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Jongo-dao</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mnrasul/jongo-dao">View on GitHub</a>
+
+          <h1 id="project_title">Jongo-dao</h1>
+          <h2 id="project_tagline">A generic data access library for jongo</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mnrasul/jongo-dao/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mnrasul/jongo-dao/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="jongo-dao" class="anchor" href="#jongo-dao"><span class="octicon octicon-link"></span></a>jongo-dao</h1>
+
+<p>A generic data access library for jongo</p>
+
+<h1>
+<a name="advantages" class="anchor" href="#advantages"><span class="octicon octicon-link"></span></a>Advantages</h1>
+
+<p>I find it tedious to rewrite the same kind of queries for similar objects. I built this DAO for myself. 
+Perhaps someone will find it useful.</p>
+
+<p>Feel free to modify it to suit your needs.</p>
+
+<p>It saves me the effort of writing same queries again and again. Instead, I only need to write queries
+which are rather unique. Overtime, I expect, to flesh this out more as I observe my usage patterns.</p>
+
+<h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<ul>
+<li>Create a model</li>
+<li>Subclass DAO to provide specific initialization vectors</li>
+<li>Use DAO</li>
+</ul><h2>
+<a name="create-a-model" class="anchor" href="#create-a-model"><span class="octicon octicon-link"></span></a>Create a model</h2>
+
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="kd">implements</span> <span class="n">Model</span><span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="n">ObjectId</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="nd">@JsonProperty</span><span class="o">(</span><span class="s">"fn"</span><span class="o">)</span>
+    <span class="n">String</span> <span class="n">firstName</span><span class="o">;</span>
+
+    <span class="nd">@JsonProperty</span><span class="o">(</span><span class="s">"ln"</span><span class="o">)</span>
+    <span class="n">String</span> <span class="n">lastName</span><span class="o">;</span>
+
+    <span class="nd">@JsonProperty</span><span class="o">(</span><span class="s">"a"</span><span class="o">)</span>
+    <span class="n">Address</span> <span class="n">address</span><span class="o">;</span>
+
+    <span class="nd">@JsonProperty</span><span class="o">(</span><span class="s">"l"</span><span class="o">)</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">tags</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="mi">3</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="n">ObjectId</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getHash</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="s">"Not supported yet."</span><span class="o">);</span> <span class="c1">//To change body of generated methods, choose Tools | Templates.</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+
+<h2>
+<a name="subclass-dao" class="anchor" href="#subclass-dao"><span class="octicon octicon-link"></span></a>Subclass DAO</h2>
+
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonDAO</span> <span class="kd">extends</span> <span class="n">DAO</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;{</span>
+
+    <span class="kd">public</span> <span class="nf">PersonDAO</span><span class="o">(</span><span class="n">String</span> <span class="n">connectionURL</span><span class="o">,</span> <span class="n">String</span> <span class="n">dbname</span><span class="o">,</span> <span class="n">String</span> <span class="n">collectionName</span><span class="o">,</span> <span class="n">Class</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">type</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">UnknownHostException</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">connectionURL</span><span class="o">,</span> <span class="n">dbname</span><span class="o">,</span> <span class="n">collectionName</span><span class="o">,</span> <span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nf">PersonDAO</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">UnknownHostException</span><span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="s">"localhost:27017"</span><span class="o">,</span> <span class="s">"jongo-dao-test"</span><span class="o">,</span> <span class="s">"person"</span><span class="o">,</span> <span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+
+<h2>
+<a name="use-dao" class="anchor" href="#use-dao"><span class="octicon octicon-link"></span></a>Use DAO</h2>
+
+<div class="highlight highlight-java"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCRUD</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">UnknownHostException</span><span class="o">{</span>
+        <span class="n">Person</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
+        <span class="n">p</span><span class="o">.</span><span class="na">lastName</span> <span class="o">=</span> <span class="s">"Aladin"</span><span class="o">;</span>
+        <span class="n">p</span><span class="o">.</span><span class="na">firstName</span> <span class="o">=</span> <span class="s">"Prince"</span><span class="o">;</span>
+        <span class="n">Address</span> <span class="n">address</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Address</span><span class="o">();</span>
+        <span class="n">address</span><span class="o">.</span><span class="na">street</span> <span class="o">=</span> <span class="s">"Palace"</span><span class="o">;</span>
+        <span class="n">address</span><span class="o">.</span><span class="na">city</span> <span class="o">=</span> <span class="s">"City"</span><span class="o">;</span>
+        <span class="n">address</span><span class="o">.</span><span class="na">postal</span> <span class="o">=</span> <span class="s">"12345"</span><span class="o">;</span>
+        <span class="n">address</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="s">"Kingdom"</span><span class="o">;</span>
+        <span class="n">address</span><span class="o">.</span><span class="na">country</span> <span class="o">=</span> <span class="s">"Magicland"</span><span class="o">;</span>
+        <span class="n">p</span><span class="o">.</span><span class="na">address</span> <span class="o">=</span> <span class="n">address</span><span class="o">;</span>
+        <span class="n">p</span><span class="o">.</span><span class="na">tags</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"flying carpet"</span><span class="o">);</span>
+        <span class="n">p</span><span class="o">.</span><span class="na">tags</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"magic lamp"</span><span class="o">);</span>
+        <span class="n">p</span><span class="o">.</span><span class="na">tags</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"fantasy"</span><span class="o">);</span>
+
+        <span class="n">PersonDAO</span> <span class="n">dao</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonDAO</span><span class="o">();</span>
+        <span class="n">dao</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+        <span class="n">ObjectId</span> <span class="n">id</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">id</span><span class="o">;</span>
+        <span class="n">Person</span> <span class="n">find</span> <span class="o">=</span> <span class="n">dao</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+
+        <span class="n">Assert</span><span class="o">.</span><span class="na">assertEquals</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">firstName</span><span class="o">,</span> <span class="n">find</span><span class="o">.</span><span class="na">firstName</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">assertEquals</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">lastName</span><span class="o">,</span> <span class="n">find</span><span class="o">.</span><span class="na">lastName</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">assertEquals</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">address</span><span class="o">.</span><span class="na">city</span><span class="o">,</span> <span class="n">find</span><span class="o">.</span><span class="na">address</span><span class="o">.</span><span class="na">city</span><span class="o">);</span>
+
+        <span class="n">p</span><span class="o">.</span><span class="na">firstName</span> <span class="o">=</span> <span class="s">"Genie"</span><span class="o">;</span>
+        <span class="n">dao</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">assertNotEquals</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">firstName</span><span class="o">,</span> <span class="n">find</span><span class="o">.</span><span class="na">firstName</span><span class="o">);</span>
+
+        <span class="n">find</span> <span class="o">=</span> <span class="n">dao</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">assertEquals</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">firstName</span><span class="o">,</span> <span class="n">find</span><span class="o">.</span><span class="na">firstName</span><span class="o">);</span>
+
+        <span class="n">dao</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+        <span class="n">find</span> <span class="o">=</span> <span class="n">dao</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">assertNull</span><span class="o">(</span><span class="n">find</span><span class="o">);</span>
+
+    <span class="o">}</span>
+</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Jongo-dao maintained by <a href="https://github.com/mnrasul">mnrasul</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-44011103-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
