@@ -3,11 +3,6 @@ jongo-dao
 
 A generic data access library for jongo
 
-Usage
-=====
-Have a look at the test class provided for an example usage.
-
-
 Advantages
 ==========
 I find it tedious to rewrite the same kind of queries for similar objects. I built this DAO for myself. 
