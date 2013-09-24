@@ -25,6 +25,9 @@ Usage
 =====
 Have a look at the test class provided for an example usage.
 
+>Helpful Tip : Use mvn dependency:copy-dependencies -DoutputDirectory=directory
+>to copy all jars to a target directory of your choice if needed
+
 
 Advantages
 ==========
@@ -42,8 +45,6 @@ Usage
 * Subclass DAO to provide specific initialization vectors
 * Use DAO
 
-Helpful Tip : Use mvn dependency:copy-dependencies -DoutputDirectory=<directory>
-to copy all jars to a target directory of your choice if needed
  
 ## Create a model
 
