@@ -155,6 +155,10 @@ public abstract class DAO<T extends Model> {
     public T find(String id) {
         return collection.findOne(new ObjectId(id)).as(type);
     }
+    
+    public T find(String id, String projectionTemplate){
+        return collection.findOne(new ObjectId(id)).projection(projectionTemplate).as(type);
+    }
 
     /**
      * Saves the entity
