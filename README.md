@@ -20,6 +20,9 @@ Code: https://github.com/mnrasul/jongo-dao
 
 Mailing List: None exists yet. You can email me. If there is sufficient traction, I'll set one up.
 
+Wishlist
+========
+ - [x] Provide support for aggregation queries
 
 Usage
 =====
