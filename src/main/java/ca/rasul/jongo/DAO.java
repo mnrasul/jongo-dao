@@ -199,4 +199,8 @@ public abstract class DAO<T extends Model> {
     public void delete(ObjectId id) {
         collection.remove(id);
     }
+    
+    public List<T> aggregate(String pipeline){
+        return collection.aggregate(pipeline).as(type);
+    }
 }
