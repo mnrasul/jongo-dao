@@ -14,7 +14,7 @@ import org.jongo.marshall.jackson.oid.Id;
  *
  * @author nasir
  */
-public class Person implements Model{
+public class Person implements Model<ObjectId>{
     @Id
     ObjectId id;
     

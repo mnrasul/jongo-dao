@@ -4,20 +4,18 @@
  */
 package ca.rasul.jongo;
 
-import org.bson.types.ObjectId;
-
 /**
  * Basic expectations of a model are defined in this interface
  * We can have models which use ObjectID
   * Annotate whichever it is by specifying the relevant type
  * @author nasir
  */
-public interface Model {
+public interface Model<T> {
     /**
      * Returns ID
      * @return 
      */
-    public ObjectId getId();
+    public T getId();
     /**
      * Any fields if modified by user represent an error/risk,
      * then compute a hash of these fields to include in your forms
