@@ -20,10 +20,16 @@ Code: https://github.com/mnrasul/jongo-dao
 
 Mailing List: None exists yet. You can email me. If there is sufficient traction, I'll set one up.
 
+Wishlist
+========
+ - [x] Provide support for aggregation queries
 
 Usage
 =====
 Have a look at the test class provided for an example usage.
+
+>Helpful Tip : Use mvn dependency:copy-dependencies -DoutputDirectory=directory
+>to copy all jars to a target directory of your choice if needed
 
 
 Advantages
@@ -41,6 +47,7 @@ Usage
 * Create a model
 * Subclass DAO to provide specific initialization vectors
 * Use DAO
+
  
 ## Create a model
 

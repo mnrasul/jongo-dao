@@ -214,7 +214,6 @@ public abstract class DAO<T extends Model> {
     }
     
     public List<T> aggregate(String ... pipeline){
-//        return collection.aggregate(pipeline).as(type);
         int i= 0;
         Aggregate agr = null;
         for (String p : pipeline){
@@ -226,5 +225,8 @@ public abstract class DAO<T extends Model> {
         }
         
         return agr.as(type);
+    }
+    public List<T> aggregate(String pipeline){
+        return collection.aggregate(pipeline).as(type);
     }
 }
