@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.bson.types.ObjectId;
+import org.jongo.Aggregate;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
+import org.jongo.ResultHandler;
 
 /**
  * Defines a generic Data Access Object (DAO). It provides frequently used
@@ -146,6 +148,17 @@ public abstract class DAO<T extends Model> {
     }
 
     /**
+     * Returns an object if one exists matching the provided ObjectId
+     *
+     * @param id
+     * @return
+     */
+    public T find(String id, ResultHandler<T> handler) {
+        return collection.findOne(new ObjectId(id)).map(handler);
+    }
+    
+    
+    /**
      * Returns an object if one exists matching the provided ObjectId in String
      * form. Before making the database call, it is converted into ObjectId
      *
@@ -154,6 +167,10 @@ public abstract class DAO<T extends Model> {
      */
     public T find(String id) {
         return collection.findOne(new ObjectId(id)).as(type);
+    }
+    
+    public T find(String id, String fields){
+        return collection.findOne(new ObjectId(id)).projection(fields).as(type);
     }
 
     /**
@@ -194,5 +211,20 @@ public abstract class DAO<T extends Model> {
      */
     public void delete(ObjectId id) {
         collection.remove(id);
+    }
+    
+    public List<T> aggregate(String ... pipeline){
+//        return collection.aggregate(pipeline).as(type);
+        int i= 0;
+        Aggregate agr = null;
+        for (String p : pipeline){
+            if (i == 0){
+                agr = collection.aggregate(p);
+            }else{
+                agr = agr.and(p);
+            }
+        }
+        
+        return agr.as(type);
     }
 }
