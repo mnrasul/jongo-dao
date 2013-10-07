@@ -119,6 +119,16 @@ public abstract class DAO<T extends Model> {
     public List<T> list(int limit, int skip) {
         return copyIterator(collection.find().limit(limit).skip(skip).as(type).iterator());
     }
+    /**
+     * Returns list of documents.
+     * 
+     * @param limit If 0 is passed, there is no upper limit
+     * @param skip if 0 is passed records from first and onwards are included
+     * @return 
+     */
+    public List<T> list(int limit, int skip, String sort) {
+        return copyIterator(collection.find().limit(limit).skip(skip).sort(sort).as(type).iterator());
+    }
 
     /**
      * Experimental : Returns JSON Array
