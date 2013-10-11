@@ -196,12 +196,12 @@ public abstract class DAO<T extends Model> {
      * @param entity
      * @return
      */
-    public Object update(T entity) {
-        if (entity.getId() == null) {
+    public Object update(ObjectId id, String query, String parameters) {
+        if (id == null) {
             throw new IllegalArgumentException("ID is empty. Cannot update. Call save instead to create a new instance!");
         }
-        save(entity);
-        return entity.getId();
+        collection.update(id).with(query, parameters);
+        return id;
     }
 
     /**
