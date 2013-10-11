@@ -5,6 +5,7 @@
 package ca.rasul.jongo;
 
 import java.net.UnknownHostException;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -18,6 +19,16 @@ public class PersonDAO extends DAO<Person>{
     
     public PersonDAO() throws UnknownHostException{
         super("localhost:27017", "jongo-dao-test", "person", Person.class);
+    }
+
+    @Override
+    public void update(ObjectId id, Person person) {
+        collection.update(id).with("{$set: {fn: #, ln: #}}", person.firstName, person.lastName);
+    }
+
+    @Override
+    public void update(String query, Person object) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

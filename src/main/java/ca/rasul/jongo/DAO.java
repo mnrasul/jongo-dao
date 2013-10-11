@@ -197,13 +197,8 @@ public abstract class DAO<T extends Model> {
      * @param entity
      * @return
      */
-    public Object update(ObjectId id, String queryTemplate, String parameters) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID is empty. Cannot update. Call save instead to create a new instance!");
-        }
-        collection.update(id).with(queryTemplate, parameters);
-        return id;
-    }
+    public abstract void update(ObjectId id, T object);
+    public abstract void update(String query, T object);
 
     /**
      * Deletes a document based on ID. ID is converted into ObjectId.

@@ -52,14 +52,17 @@ public class PersonTest{
 
         
 //        p.firstName = "Genie";
-        
-        dao.update(id,"{$set:{ln:#}}","Mocha");
+        Person p2 = new Person();
+        p2.firstName = "fafa";
+        p2.lastName = "lala";
+        dao.update(id,p2);
         find = dao.find(id);
-        Assert.assertEquals(p.firstName, find.firstName);
-        Assert.assertEquals("Mocha", find.lastName);
+        Assert.assertEquals(p2.firstName, find.firstName);
+        Assert.assertEquals(p2.lastName, find.lastName);
+        Assert.assertEquals(p.address.city, find.address.city);
         
         find = dao.find(id);
-        Assert.assertEquals(p.firstName, find.firstName);
+        Assert.assertEquals(p2.firstName, find.firstName);
         
         dao.delete(id);
         find = dao.find(id);
