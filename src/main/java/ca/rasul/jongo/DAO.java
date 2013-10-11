@@ -193,14 +193,15 @@ public abstract class DAO<T extends Model> {
     }
 
     /**
+     * Update object with id.
      * @param entity
      * @return
      */
-    public Object update(ObjectId id, String query, String parameters) {
+    public Object update(ObjectId id, String queryTemplate, String parameters) {
         if (id == null) {
             throw new IllegalArgumentException("ID is empty. Cannot update. Call save instead to create a new instance!");
         }
-        collection.update(id).with(query, parameters);
+        collection.update(id).with(queryTemplate, parameters);
         return id;
     }
 
@@ -222,7 +223,11 @@ public abstract class DAO<T extends Model> {
     public void delete(ObjectId id) {
         collection.remove(id);
     }
-    
+    /**
+     * Aggregate
+     * @param pipeline - multiple pipelines
+     * @return 
+     */
     public List<T> aggregate(String ... pipeline){
         int i= 0;
         Aggregate agr = null;
@@ -236,6 +241,11 @@ public abstract class DAO<T extends Model> {
         
         return agr.as(type);
     }
+    /**
+     * Aggregate - single pipeline
+     * @param pipeline
+     * @return 
+     */
     public List<T> aggregate(String pipeline){
         return collection.aggregate(pipeline).as(type);
     }
