@@ -7,7 +7,7 @@
     <version>0.2</version>
 
     <scm>
-        <connection>scm:git:git://github.com/mnrasul/jongo-dao.git</connection>
+        <connection>https://github.com/mnrasul/jongo-dao.git</connection>
         <url>https://github.com/mnrasul/jongo-dao</url>
       <tag>jongo-dao-0.2</tag>
   </scm>
