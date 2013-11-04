@@ -111,7 +111,9 @@ public abstract class DAO<T extends Model> {
     }
     /**
      * Returns list of documents.
-     * 
+     * if you pass 10, 1 it means retrieve 10 records from first page.
+     * A number less than 1 is interpreted to be 1.
+     * A negative limit defaults to 10.
      * @param limit If 0 is passed, there is no upper limit
      * @param page if 0 is passed records from first and onwards are included
      * @return 
@@ -121,7 +123,9 @@ public abstract class DAO<T extends Model> {
     }
     /**
      * Returns list of documents.
-     * 
+     * if you pass 10, 1 it means retrieve 10 records from first page.
+     * A number less than 1 is interpreted to be 1.
+     * A negative limit defaults to 10.
      * @param limit If 0 is passed, there is no upper limit
      * @param page if 0 is passed records from first and onwards are included
      * @return 
@@ -131,7 +135,9 @@ public abstract class DAO<T extends Model> {
             page = 1;
         }
         page = (page < 0)? -page: page;
-        return copyIterator(collection.find().limit(limit).skip(--page*limit).sort(sort).as(type).iterator());
+        page--;
+        limit = (limit < 0)? 10: limit;
+        return copyIterator(collection.find().limit(limit).skip(page*limit).sort(sort).as(type).iterator());
     }
 
     /**
@@ -198,7 +204,10 @@ public abstract class DAO<T extends Model> {
 
     /**
      * Update object with id.
+<<<<<<< HEAD
      * @param id
+=======
+>>>>>>> 27f25561db49d50c11e1b1d7c48033a1a7ce4077
      * @param object
      * @return
      */
