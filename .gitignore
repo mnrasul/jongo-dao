@@ -4,3 +4,5 @@
 .idea
 target
 jars
+jongo-dao.iml
+release.properties

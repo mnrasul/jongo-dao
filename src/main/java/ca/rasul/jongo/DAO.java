@@ -107,27 +107,31 @@ public abstract class DAO<T extends Model> {
      * @return
      */
     public List<T> list() {
-        return list(0,0);
+        return list(getLimit(),1,null);
     }
     /**
      * Returns list of documents.
      * 
      * @param limit If 0 is passed, there is no upper limit
-     * @param skip if 0 is passed records from first and onwards are included
+     * @param page if 0 is passed records from first and onwards are included
      * @return 
      */
-    public List<T> list(int limit, int skip) {
-        return copyIterator(collection.find().limit(limit).skip(skip).as(type).iterator());
+    public List<T> list(int limit, int page) {
+        return list(limit,page,null);
     }
     /**
      * Returns list of documents.
      * 
      * @param limit If 0 is passed, there is no upper limit
-     * @param skip if 0 is passed records from first and onwards are included
+     * @param page if 0 is passed records from first and onwards are included
      * @return 
      */
-    public List<T> list(int limit, int skip, String sort) {
-        return copyIterator(collection.find().limit(limit).skip(skip).sort(sort).as(type).iterator());
+    public List<T> list(int limit, int page, String sort) {
+        if (page < 1){
+            page = 1;
+        }
+        page = (page < 0)? -page: page;
+        return copyIterator(collection.find().limit(limit).skip(--page*limit).sort(sort).as(type).iterator());
     }
 
     /**
@@ -194,7 +198,8 @@ public abstract class DAO<T extends Model> {
 
     /**
      * Update object with id.
-     * @param entity
+     * @param id
+     * @param object
      * @return
      */
     public abstract void update(ObjectId id, T object);
