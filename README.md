@@ -48,6 +48,23 @@ Usage
 * Subclass DAO to provide specific initialization vectors
 * Use DAO
 
+Persisting History/versions of documents
+========================================
+You can have full copies of documents stored as a new version. 
+
+* Model should implement `HistoryAwareModel` interface.
+* Call the super.update method in your DAO i.e PersonDAO
+* ensure version is incremented by calling $inc on version
+* that is pretty much it
+* at some point I will try and implement a smarter history tracking
+
+```java
+@Override
+public void update(ObjectId id, Person person) {
+        super.update(id,person);
+        collection.update(id).with("{$set: {fn: #, ln: #, createdAt: #, createdBy: #}, $inc: {version: 1}}", person.firstName, person.lastName, new Date(), "anon");
+}
+```
  
 ## Create a model
 
@@ -136,3 +153,4 @@ public class PersonDAO extends DAO<Person>{
         
     }
 ```
+

@@ -30,11 +30,7 @@ public class PersonDAO extends DAO<Person, HistoryAwarePerson>{
     @Override
     public void update(ObjectId id, Person person) {
         super.update(id,person);
-
-        HistoryAwarePerson historyAwarePerson = (HistoryAwarePerson)find(id, HistoryAwarePerson.class);
-        historyAwarePerson.incrementVersion();
-        collection.update(id).with("{$set: {fn: #, ln: #, version : #, createdAt: #, createdBy: #}}", person.firstName, person.lastName,historyAwarePerson.getVersion(), new Date(), "anon");
-
+        collection.update(id).with("{$set: {fn: #, ln: #, createdAt: #, createdBy: #}, $inc: {version: 1}}", person.firstName, person.lastName, new Date(), "anon");
     }
 
     @Override
