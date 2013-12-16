@@ -5,19 +5,22 @@
 package ca.rasul.jongo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
 import org.bson.types.ObjectId;
 import org.jongo.marshall.jackson.oid.Id;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author nasir
  */
-public class Person implements Model<ObjectId>{
+public class Person implements Model<ObjectId> {
     @Id
     ObjectId id;
-    
+    @JsonProperty("ref")
+    ObjectId reference;
+
     @JsonProperty("fn")
     String firstName;
     
@@ -29,7 +32,9 @@ public class Person implements Model<ObjectId>{
     
     @JsonProperty("l")
     List<String> tags = new ArrayList<String>(3);
-    
+
+    int version = 1;
+
     public ObjectId getId() {
         return this.id;
     }
@@ -37,5 +42,5 @@ public class Person implements Model<ObjectId>{
     public String getHash() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

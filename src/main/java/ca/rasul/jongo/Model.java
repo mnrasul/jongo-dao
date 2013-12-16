@@ -10,12 +10,13 @@ package ca.rasul.jongo;
   * Annotate whichever it is by specifying the relevant type
  * @author nasir
  */
-public interface Model<T> {
+public interface Model<T>{
     /**
      * Returns ID
      * @return 
      */
     public T getId();
+
     /**
      * Any fields if modified by user represent an error/risk,
      * then compute a hash of these fields to include in your forms
@@ -32,4 +33,5 @@ public interface Model<T> {
      * @return 
      */
     public String getHash();
+
 }

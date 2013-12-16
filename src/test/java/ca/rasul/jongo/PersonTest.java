@@ -4,12 +4,13 @@
  */
 package ca.rasul.jongo;
 
-import java.net.UnknownHostException;
 import org.bson.types.ObjectId;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+import java.net.UnknownHostException;
 /**
  *Tests persistence of Person which includes an embedded document
  * @author nasir
@@ -56,15 +57,33 @@ public class PersonTest{
         p2.firstName = "fafa";
         p2.lastName = "lala";
         dao.update(id,p2);
+        //version 2
+
         find = dao.find(id);
         Assert.assertEquals(p2.firstName, find.firstName);
         Assert.assertEquals(p2.lastName, find.lastName);
         Assert.assertEquals(p.address.city, find.address.city);
-        
+
+
+        p2.firstName = "baba";
+
+        //version 3 after update, hence history will have 2 which is 1 less than current
+        dao.update(id, p2); 
+        //test history
+        final HistoryAwarePerson version = dao.getVersion(id, 2);
+        Assert.assertEquals("fafa",version.firstName);
+
+
+        p2.firstName = "chaha";
+        //version for after update
+        dao.update(id,p2);
+
+
         find = dao.find(id);
         Assert.assertEquals(p2.firstName, find.firstName);
         
         dao.delete(id);
+        dao.deleteHistory(id);
         find = dao.find(id);
         Assert.assertNull(find);
         
