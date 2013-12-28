@@ -61,6 +61,17 @@ public interface CRUD<T extends Model> {
      * @return
      */
      List<T> list(int limit, int page, String sort);
+/**
+     * Returns list of documents.
+     * if you pass 10, 1 it means retrieve 10 records from first page.
+     * A number less than 1 is interpreted to be 1.
+     * A negative limit defaults to 10.
+     * @param limit If 0 is passed, there is no upper limit
+     * @param page if 0 is passed records from first and onwards are included
+ *                 @param query query parameter
+     * @return
+     */
+     List<T> list(int limit, int page, String sort, String query);
 
     /**
      * Experimental : Returns JSON Array

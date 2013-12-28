@@ -108,7 +108,7 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
      */
     @Override
     public List<T> list() {
-        return list(getLimit(),1,null);
+        return list(0,0,null);
     }
     /**
      * Returns list of documents.
@@ -140,7 +140,27 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
         page = (page < 0)? -page: page;
         page--;
         limit = (limit < 0)? 10: limit;
-        return copyIterator(collection.find().limit(limit).skip(page*limit).sort(sort).as(type).iterator());
+        return copyIterator(collection.find().limit(limit).skip(page * limit).sort(sort).as(type).iterator());
+    }
+    /**
+     * Returns list of documents.
+     * if you pass 10, 1 it means retrieve 10 records from first page.
+     * A number less than 1 is interpreted to be 1.
+     * A negative limit defaults to 10.
+     * @param limit If 0 is passed, there is no upper limit
+     * @param page if 0 is passed records from first and onwards are included
+     * @param query query parameter
+     * @retun 
+     */
+    @Override
+    public List<T> list(int limit, int page, String sort, String query) {
+        if (page < 1){
+            page = 1;
+        }
+        page = (page < 0)? -page: page;
+        page--;
+        limit = (limit < 0)? 10: limit;
+        return copyIterator(collection.find(query).limit(limit).skip(page*limit).sort(sort).as(type).iterator());
     }
 
     /**
