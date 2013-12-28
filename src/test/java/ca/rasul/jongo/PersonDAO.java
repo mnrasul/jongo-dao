@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author nasir
  */
-public class PersonDAO extends DAO<Person, HistoryAwarePerson>{
+public class PersonDAO extends HistoryAwareDAO<Person, HistoryAwarePerson>{
 
     public PersonDAO(String connectionURL, String dbname, String collectionName, Class<Person> type) throws UnknownHostException {
         super(connectionURL, dbname, collectionName, Person.class, HistoryAwarePerson.class);

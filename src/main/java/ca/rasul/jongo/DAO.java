@@ -4,10 +4,6 @@
  */
 package ca.rasul.jongo;
 
-import ca.rasul.jongo.history.FullCopyHistoryPersistenceStrategy;
-import ca.rasul.jongo.history.HistoryAwareModel;
-import ca.rasul.jongo.history.HistoryCRUD;
-import ca.rasul.jongo.history.HistoryPersistenceStrategy;
 import com.mongodb.*;
 import org.bson.types.ObjectId;
 import org.jongo.Aggregate;
@@ -28,17 +24,14 @@ import java.util.List;
  *
  * @author nasir
  */
-public abstract class DAO<T extends Model, U extends HistoryAwareModel> implements CRUD<T>, HistoryCRUD<U> {
+public abstract class DAO<T extends Model> implements CRUD<T>{
 
     protected MongoClient client = null;
     protected DB db = null;
     protected Jongo jongo = null;
     protected MongoCollection collection = null;
-    protected MongoCollection history = null;
-    private Class<T> type;
-    private Class<U> historyType;
-    private final String collectionName;
-    private final HistoryPersistenceStrategy historyPersistenceStrategy = new FullCopyHistoryPersistenceStrategy();
+    protected Class<T> type;
+    protected final String collectionName;
 
     /**
      * Create a DAO for given collection, using the URL and DB
@@ -50,17 +43,14 @@ public abstract class DAO<T extends Model, U extends HistoryAwareModel> implemen
      * @throws UnknownHostException Usually thrown when invalid connection URL
      * is provided, or database is not running
      */
-    public DAO(String connectionURL, String dbname, String collectionName, Class<T> type, Class<U> historyType) throws UnknownHostException {
+    public DAO(String connectionURL, String dbname, String collectionName, Class<T> type) throws UnknownHostException {
         client = new MongoClient(connectionURL);
         db = client.getDB(dbname);
         jongo = new Jongo(db);
         this.collectionName = collectionName;
         this.collection = jongo.getCollection(this.collectionName);
-        this.history = jongo.getCollection(this.collectionName+getCollectionSuffix());
         this.collection.withWriteConcern(WriteConcern.JOURNALED);
-        this.history.withWriteConcern(WriteConcern.SAFE);
         this.type = type;
-        this.historyType = historyType;
     }
 
     
@@ -190,7 +180,7 @@ public abstract class DAO<T extends Model, U extends HistoryAwareModel> implemen
      */
     @Override
     public Object find(ObjectId id, Class type){
-        return collection.findOne(id).as(historyType);
+        return collection.findOne(id).as(type);
     }
 
     /**
@@ -242,7 +232,7 @@ public abstract class DAO<T extends Model, U extends HistoryAwareModel> implemen
     public void update(ObjectId id, T object){
         //write existing data.
         //passed object contains modifications (or supposed to, no check done yet)
-        writeHistory(historyPersistenceStrategy, id);
+
     }
 
     /**
@@ -266,10 +256,6 @@ public abstract class DAO<T extends Model, U extends HistoryAwareModel> implemen
         collection.remove(id);
     }
 
-    @Override
-    public void deleteHistory(ObjectId referenceId){
-        history.remove("{ref : #}",referenceId);
-    }
     /**
      * Aggregate
      * @param pipeline - multiple pipelines
@@ -299,45 +285,8 @@ public abstract class DAO<T extends Model, U extends HistoryAwareModel> implemen
         return collection.aggregate(pipeline).as(type);
     }
 
-    /**
-     * determines if a collection is to be versioned
-     *
-     * @return true if versioned, false otherwise; by default it is false
-     */
     @Override
-    public boolean isVersioned() {
-        return false;
-    }
+    public void update(String query, T object) {
 
-    /**
-     * By convention, the name of the history collection becomes
-     * collection.history i.e if a collection is called
-     * users, its shadow history collection will be called <code>users.history</code>
-     * <p/>
-     * Hence this method should return history if history is to be added at the end
-     *
-     * @return by default ".history" is returned
-     */
-    @Override
-    public String getCollectionSuffix() {
-        return ".history";
-    }
-
-    /**
-     * Actually write the history based on the strategy.
-     * Some strategy might return a new document,
-     * another strategy might return a diff  only.
-     * or simply some audit data.
-     * <p/>
-     * Regardless, whatever the strategy returns, persist it
-     *
-     * @param strategy
-     * @param id
-     */
-    @Override
-    public void writeHistory(HistoryPersistenceStrategy strategy, ObjectId id) {
-        if (isVersioned()){
-            strategy.writeHistory(history,id,(U)find(id,historyType));
-        }
     }
 }
