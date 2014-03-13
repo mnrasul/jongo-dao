@@ -125,7 +125,7 @@ public interface CRUD<T extends Model> {
      * HistoryCRUD only starts on updates
      * @param entity
      */
-     void save(T entity);
+     Object save(T entity);
 
     /**
      * Update object with id.

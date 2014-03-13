@@ -116,6 +116,11 @@ public class HistoryAwareDAO<T extends Model, U extends HistoryAwareModel> exten
         return null;
     }
 
+    @Override
+    protected void ensureIndex() {
+
+    }
+
     /**
      * Update object with id.
      *

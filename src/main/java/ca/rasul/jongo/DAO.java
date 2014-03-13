@@ -19,12 +19,12 @@ import java.util.List;
 /**
  * Defines a generic Data Access Object (DAO). It provides frequently used
  * methods such as list, find, delete, update, save.
- *
+ * <p/>
  * It saves boiler plate.
  *
  * @author nasir
  */
-public abstract class DAO<T extends Model> implements CRUD<T>{
+public abstract class DAO<T extends Model> implements CRUD<T> {
 
     protected MongoClient client = null;
     protected DB db = null;
@@ -39,21 +39,46 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
      * @param connectionURL
      * @param dbname
      * @param collectionName
-     * @param type Type needs to be provided
+     * @param type           Type needs to be provided
      * @throws UnknownHostException Usually thrown when invalid connection URL
-     * is provided, or database is not running
+     *                              is provided, or database is not running
      */
     public DAO(String connectionURL, String dbname, String collectionName, Class<T> type) throws UnknownHostException {
-        client = new MongoClient(connectionURL);
+
+
+        //connect to replica set if contains a comma
+        if (connectionURL.contains(",")) {
+            String replicaSet[] = connectionURL.split("[,/]");
+            //we ditch the first 2 since they do not contain the address
+            List<ServerAddress> servers = new ArrayList<>(replicaSet.length);
+            for(int i=0; i<replicaSet.length;i++){
+                if (replicaSet[i].contains(":")){
+                    System.out.println(replicaSet[i]);
+                    String []address = replicaSet[i].split(":");
+                    if (address.length == 2){
+                        ServerAddress server = new ServerAddress(address[0],Integer.parseInt(address[1]));
+                        System.out.println(server.toString());
+                        servers.add(server);
+                    }
+                }
+            }
+            client = new MongoClient(servers);
+        } else {
+            client = new MongoClient(connectionURL);
+        }
+
         db = client.getDB(dbname);
         jongo = new Jongo(db);
         this.collectionName = collectionName;
         this.collection = jongo.getCollection(this.collectionName);
         this.collection.withWriteConcern(WriteConcern.JOURNALED);
         this.type = type;
+        ensureIndex();
     }
 
-    
+    abstract protected void ensureIndex();
+
+
     /**
      * Specifies what is the default limit
      *
@@ -81,86 +106,95 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
 
     /**
      * Convenience method which returns a count of all documents in collection
-     * @return 
+     *
+     * @return
      */
     @Override
-    public long count(){
+    public long count() {
         return collection.count();
     }
-    
+
     /**
      * Returns the count of documents matching the qurey
+     *
      * @param query
      * @param parameters
-     * @return 
+     * @return
      */
     @Override
-    public long count(String query, Object ... parameters){
+    public long count(String query, Object... parameters) {
         return collection.count(query, parameters);
     }
 
-    
+
     /**
      * Returns a list, specifying no query parameters, applying provided limit
      * and skip. Convenience method
      * same as calling list(0,0)
+     *
      * @return
      */
     @Override
     public List<T> list() {
-        return list(0,0,null);
+        return list(0, 0, null);
     }
+
     /**
      * Returns list of documents.
      * if you pass 10, 1 it means retrieve 10 records from first page.
      * A number less than 1 is interpreted to be 1.
      * A negative limit defaults to 10.
+     *
      * @param limit If 0 is passed, there is no upper limit
-     * @param page if 0 is passed records from first and onwards are included
-     * @return 
+     * @param page  if 0 is passed records from first and onwards are included
+     * @return
      */
     @Override
     public List<T> list(int limit, int page) {
-        return list(limit,page,null);
+        return list(limit, page, null);
     }
+
     /**
      * Returns list of documents.
      * if you pass 10, 1 it means retrieve 10 records from first page.
      * A number less than 1 is interpreted to be 1.
      * A negative limit defaults to 10.
+     *
      * @param limit If 0 is passed, there is no upper limit
-     * @param page if 0 is passed records from first and onwards are included
-     * @return 
+     * @param page  if 0 is passed records from first and onwards are included
+     * @return
      */
     @Override
     public List<T> list(int limit, int page, String sort) {
-        if (page < 1){
+        if (page < 1) {
             page = 1;
         }
-        page = (page < 0)? -page: page;
+        page = (page < 0) ? -page : page;
         page--;
-        limit = (limit < 0)? 10: limit;
+        limit = (limit < 0) ? 10 : limit;
         return copyIterator(collection.find().limit(limit).skip(page * limit).sort(sort).as(type).iterator());
     }
+
     /**
      * Returns list of documents.
      * if you pass 10, 1 it means retrieve 10 records from first page.
      * A number less than 1 is interpreted to be 1.
      * A negative limit defaults to 10.
+     *
      * @param limit If 0 is passed, there is no upper limit
-     * @param page if 0 is passed records from first and onwards are included
+     * @param page  if 0 is passed records from first and onwards are included
      * @param query query parameter
-     * @retun 
+     * @retun
      */
     @Override
     public List<T> list(int limit, int page, String sort, String query) {
-        if (page < 1){
+        if (page < 1) {
             page = 1;
         }
-        page = (page < 0)? -page: page;
+        page = (page < 0) ? -page : page;
         page--;
-        limit = (limit < 0)? 10: limit;
-        return copyIterator(collection.find(query).limit(limit).skip(page*limit).sort(sort).as(type).iterator());
+        limit = (limit < 0) ? 10 : limit;
+        return copyIterator(collection.find(query).limit(limit).skip(page * limit).sort(sort).as(type).iterator());
     }
 
     /**
@@ -181,6 +215,7 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
 //    public List<T> list(){
 //        return copyIterator(collection.find().as(type).iterator());
 //    }    
+
     /**
      * Returns an object if one exists matching the provided ObjectId
      *
@@ -194,12 +229,13 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
 
     /**
      * return appropriate object. Cast it accordingly
+     *
      * @param id
      * @param type
      * @return
      */
     @Override
-    public Object find(ObjectId id, Class type){
+    public Object find(ObjectId id, Class type) {
         return collection.findOne(id).as(type);
     }
 
@@ -228,28 +264,31 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
     }
 
     @Override
-    public T find(String id, String fields){
+    public T find(String id, String fields) {
         return collection.findOne(new ObjectId(id)).projection(fields).as(type);
     }
 
     /**
      * Saves the entity
      * HistoryCRUD only starts on updates
+     *
      * @param entity
      */
     @Override
-    public void save(T entity) {
+    public Object save(T entity) {
         collection.save(entity);
+        return entity.getId();
     }
 
     /**
      * Update object with id.
+     *
      * @param id
      * @param object
      * @return
      */
     @Override
-    public void update(ObjectId id, T object){
+    public void update(ObjectId id, T object) {
         //write existing data.
         //passed object contains modifications (or supposed to, no check done yet)
 
@@ -278,30 +317,33 @@ public abstract class DAO<T extends Model> implements CRUD<T>{
 
     /**
      * Aggregate
+     *
      * @param pipeline - multiple pipelines
-     * @return 
+     * @return
      */
     @Override
-    public List<T> aggregate(String ... pipeline){
-        int i= 0;
+    public List<T> aggregate(String... pipeline) {
+        int i = 0;
         Aggregate agr = null;
-        for (String p : pipeline){
-            if (i == 0){
+        for (String p : pipeline) {
+            if (i == 0) {
                 agr = collection.aggregate(p);
-            }else{
+            } else {
                 agr = agr.and(p);
             }
         }
-        
+
         return agr.as(type);
     }
+
     /**
      * Aggregate - single pipeline
+     *
      * @param pipeline
-     * @return 
+     * @return
      */
     @Override
-    public List<T> aggregate(String pipeline){
+    public List<T> aggregate(String pipeline) {
         return collection.aggregate(pipeline).as(type);
     }
 
